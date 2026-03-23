@@ -1,0 +1,18 @@
+biopython>=1.81
+numpy>=1.24
+pandas>=2.0
+matplotlib>=3.7
+seaborn>=0.12
+pyyaml>=6.0
+requests>=2.31
+tqdm>=4.65
+
+# Structure analysis
+# mdanalysis>=2.6       # Optional: membrane positioning analysis
+# pymol-open-source     # Optional: visualization
+
+# Nanobody-specific (install separately in Colab)
+# ablang2               # pip install ablang2
+# antifold              # pip install antifold
+# ImmuneBuilder         # pip install ImmuneBuilder  (includes NanobodyBuilder2)
+# iglm                  # pip install iglm

@@ -1,0 +1,110 @@
+# ============================================================
+# Nanobody Design Configuration
+# Target: Marmoset SWS1 Opsin (UniProt: F7GQA6)
+# ============================================================
+
+target:
+  uniprot_id: F7GQA6
+  name: "Marmoset SWS1 Cone Opsin"
+  organism: "Callithrix jacchus"
+  lambda_max_nm: 430
+  pdb_file: "data/F7GQA6_AF2.pdb"  # Place your AF2 structure here
+  chain_id: "A"
+
+# -------------------------------------------------------
+# Transmembrane topology (based on human OPN1SW homology)
+# Verify with your AF2 structure using 01_prepare_target.py
+# -------------------------------------------------------
+topology:
+  # Extracellular regions (nanobody-accessible)
+  extracellular:
+    N_terminus: [1, 33]
+    ECL1:       [92, 106]   # Short loop, TM2-TM3
+    ECL2:       [175, 203]  # Main target: largest loop, covers chromophore pocket
+    ECL3:       [279, 288]  # Short loop, TM6-TM7
+
+  # Transmembrane helices (excluded from design)
+  transmembrane:
+    TM1: [34,  58]
+    TM2: [67,  91]
+    TM3: [107, 133]  # Contains Cys110 (disulfide partner)
+    TM4: [154, 174]
+    TM5: [204, 232]
+    TM6: [250, 278]
+    TM7: [287, 313]  # Contains Lys296 (retinal Schiff base)
+
+  # Intracellular (excluded)
+  intracellular:
+    ICL1: [59,  66]
+    ICL2: [134, 153]
+    ICL3: [233, 249]
+    H8:   [314, 321]
+    C_terminus: [322, 348]
+
+# -------------------------------------------------------
+# Key functional residues
+# -------------------------------------------------------
+functional_residues:
+  retinal_schiff_base: 296  # Lys296, TM7
+  disulfide:
+    - 110  # Cys110, TM3
+    - 187  # Cys187, ECL2 -- DO NOT target directly
+  spectral_tuning:
+    - 86   # Phe86
+    - 90   # Ser90 (violet/UV tuning)
+    - 207  # Met207
+    - 265  # Ala265
+
+# -------------------------------------------------------
+# Primary epitope: ECL2
+# -------------------------------------------------------
+epitope:
+  primary_region: ECL2
+  hotspot_candidates: [176, 177, 178, 179, 180, 181, 182, 183, 184, 185,
+                       188, 189, 190, 191, 192, 193, 194, 195, 196, 197]
+  # Note: Cys187 is excluded (involved in disulfide bond)
+  # Final hotspots selected by 01_prepare_target.py (SASA > threshold)
+
+# -------------------------------------------------------
+# RFdiffusion parameters
+# -------------------------------------------------------
+rfdiffusion:
+  num_designs: 200          # Generate 200 backbone candidates
+  nanobody_length: [120, 130]  # VHH: typically 125 residues
+  noise_scale: 0.5          # Conservative; increase for more diversity
+  num_recycles: 3
+  partial_diffusion: false  # Full de novo design
+
+  # Hotspot specification (auto-filled by 01_prepare_target.py)
+  hotspot_residues: []      # e.g. ["A178", "A181", "A185", "A191"]
+
+  # Only the extracellular domain PDB is passed to RFdiffusion
+  target_pdb: "data/F7GQA6_extracellular.pdb"
+
+# -------------------------------------------------------
+# ProteinMPNN / AntiFold parameters
+# -------------------------------------------------------
+sequence_design:
+  tool: "ProteinMPNN"       # or "AntiFold"
+  sequences_per_design: 8
+  sampling_temperature: 0.1
+  # Framework residues fixed; only CDR1/2/3 redesigned
+  design_regions: ["CDR1", "CDR2", "CDR3"]
+
+# -------------------------------------------------------
+# Filtering thresholds
+# -------------------------------------------------------
+filters:
+  # ColabFold / AlphaFold2-multimer
+  min_iptm: 0.6             # Interface pTM score
+  max_pae_interface: 10.0   # Predicted Aligned Error at interface (Å)
+  min_pdockq: 0.23          # pDockQ score
+
+  # PRODIGY binding affinity
+  max_dG_kcal_mol: -8.0     # ΔG < -8 kcal/mol
+
+  # Sequence quality (AbLang2 pseudo-likelihood)
+  min_ablang_score: -2.5
+
+  # SASA-based contact quality
+  min_interface_sasa: 800   # Å²
