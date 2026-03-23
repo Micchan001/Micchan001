@@ -134,10 +134,11 @@ def build_proteinmpnn_command(config: dict,
     n_seqs = seq_config["sequences_per_design"]
     temp = seq_config["sampling_temperature"]
 
+    # pdb_paths.json maps {stem: path} for all design PDBs — created by
+    # generate_mpnn_fixed_positions() before this command runs.
     cmd = [
         "python", script,
-        "--pdb_path", designs_dir,
-        "--pdb_path_multi", "1",          # process all PDBs in dir
+        "--pdb_path_multi", f"{output_dir}/pdb_paths.json",
         "--out_folder", output_dir,
         "--num_seq_per_target", str(n_seqs),
         "--sampling_temp", str(temp),
@@ -177,6 +178,7 @@ def generate_mpnn_fixed_positions(designs_dir: str,
 
     fixed_positions = {}
     fixed_chains = {}
+    pdb_paths = {}
 
     design_pdbs = list(Path(designs_dir).glob("design_*.pdb"))
     for pdb in design_pdbs:
@@ -187,6 +189,7 @@ def generate_mpnn_fixed_positions(designs_dir: str,
             "B": framework_positions,   # VHH framework fixed
         }
         fixed_chains[name] = ["A"]  # target chain fully fixed
+        pdb_paths[name] = str(pdb.resolve())
 
     os.makedirs(output_dir, exist_ok=True)
 
@@ -197,6 +200,10 @@ def generate_mpnn_fixed_positions(designs_dir: str,
     with open(f"{output_dir}/fixed_chains.jsonl", "w") as f:
         for name, chains in fixed_chains.items():
             f.write(json.dumps({name: chains}) + "\n")
+
+    # pdb_paths.json: {name: path} mapping required by ProteinMPNN --pdb_path_multi
+    with open(f"{output_dir}/pdb_paths.json", "w") as f:
+        json.dump(pdb_paths, f, indent=2)
 
     print(f"[INFO] ProteinMPNN fixed positions written to {output_dir}/")
     print(f"       CDR positions designed: CDR1={list(cdr1)[:3]}..., "
