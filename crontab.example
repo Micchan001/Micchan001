@@ -1,0 +1,14 @@
+# AI秘書 定期実行 crontab 設定例
+# crontab -e でこの設定を追加してください
+
+# 毎時間実行（平日のみ）
+# 0 * * * 1-5 /path/to/Micchan001/run_secretary.sh --once >> /path/to/logs/secretary.log 2>&1
+
+# 午前9時・午後1時・午後5時に実行（平日）
+# 0 9,13,17 * * 1-5 /path/to/Micchan001/run_secretary.sh --once >> /path/to/logs/secretary.log 2>&1
+
+# 毎朝8時に実行（毎日）
+# 0 8 * * * /path/to/Micchan001/run_secretary.sh --once >> /path/to/logs/secretary.log 2>&1
+
+# バックグラウンドでループ実行する場合（30分ごと）
+# @reboot /path/to/Micchan001/run_secretary.sh --interval 30 &
