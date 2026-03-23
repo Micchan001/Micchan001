@@ -1,0 +1,4 @@
+# Ignore large output files; keep .gitkeep and .gitignore
+*.pdb
+*.trb
+rfdiffusion_outputs/
