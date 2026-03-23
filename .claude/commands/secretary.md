@@ -6,9 +6,40 @@
 
 ### ステップ1: Gmailのメッセージ確認
 
-まず過去24時間（もしくは未読）のメールを確認してください：
+以下の2種類の検索を実行してください：
+
+**① y.mizuno.092@nitech.jp からのメール（優先確認）:**
+- `gmail_search_messages` で `from:y.mizuno.092@nitech.jp newer_than:7d` を検索
+- すべてのメールを `gmail_read_message` で内容を確認
+
+**② 一般的な未読メール:**
 - `gmail_search_messages` で `is:unread newer_than:1d` を検索
 - 重要そうなメール（件名や差出人から判断）は `gmail_read_message` で内容を確認
+
+### ステップ1.5: Slackメッセージの確認
+
+Bash ツールで以下のコマンドを実行してSlackメッセージを取得してください：
+
+```bash
+cd /home/user/Micchan001 && python3 -c "
+from secretary.slack_client import SlackClient
+import json
+try:
+    client = SlackClient()
+    channels = client.get_channel_list()
+    print('=== 参加チャンネル ===')
+    for ch in channels:
+        print(f\"  #{ch['name']} (id: {ch['id']})\")
+    messages = client.get_unread_messages(hours_ago=24)
+    print(f'\n=== 過去24時間のメッセージ ({len(messages)}件) ===')
+    for msg in messages:
+        print(json.dumps(msg, ensure_ascii=False))
+except Exception as e:
+    print(f'Slackエラー: {e}')
+"
+```
+
+取得できたメッセージはGmailと同様に分析・分類してください。
 
 ### ステップ2: メッセージの分析
 
@@ -51,7 +82,8 @@
 ## 📋 秘書レポート - [日時]
 
 ### 📬 確認したメッセージ
-- 総数: X件（うち未読: Y件）
+- メール総数: X件（うち未読: Y件）
+- Slackメッセージ: Z件（DM: A件、メンション: B件）
 
 ### ⚡ 緊急タスク（今日・明日）
 - [ ] タスク名 - 期限: XX/XX - 出典: メール件名
@@ -61,6 +93,9 @@
 
 ### 📅 カレンダー登録済み
 - イベント名 - 日時
+
+### 💬 Slack 要対応メッセージ
+- チャンネル/DM: メッセージ概要
 
 ### 📧 返信ドラフト作成済み
 - 件名: メール件名 → ドラフト保存済み
