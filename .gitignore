@@ -29,3 +29,6 @@ logs/
 
 # macOS
 .DS_Store
+
+# Claude Code local settings (contains secrets)
+.claude/settings.local.json
