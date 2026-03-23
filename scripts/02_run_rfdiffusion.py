@@ -93,7 +93,7 @@ def build_rfdiffusion_command(config: dict, output_dir: str) -> list[str]:
     hotspot_str = ",".join(hotspots)  # e.g. "A178,A181,A185,A191"
     binder_length = (binder_min + binder_max) // 2  # use midpoint
 
-    rfdiffusion_path = os.environ.get("RFDIFFUSION_PATH", "/opt/RFdiffusion")
+    rfdiffusion_path = os.environ.get("RFDIFFUSION_PATH", "/content/RFdiffusion")
     script = os.path.join(rfdiffusion_path, "scripts", "run_inference.py")
 
     # contigmap: "A1-203/0 125-130"
@@ -127,7 +127,7 @@ def build_proteinmpnn_command(config: dict,
     Fixed positions: VHH framework residues (all except CDR1/CDR2/CDR3)
     Designed positions: CDR1 (27-38), CDR2 (56-65), CDR3 (105-117) — IMGT
     """
-    mpnn_path = os.environ.get("PROTEINMPNN_PATH", "/opt/ProteinMPNN")
+    mpnn_path = os.environ.get("PROTEINMPNN_PATH", "/content/ProteinMPNN")
     script = os.path.join(mpnn_path, "protein_mpnn_run.py")
 
     seq_config = config["sequence_design"]
